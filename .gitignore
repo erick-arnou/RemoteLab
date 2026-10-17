@@ -1,0 +1,19 @@
+# variáveis de ambiente e dados sensíveis
+.env
+*.env
+infra/compose/secrets/
+
+# dados gerados pelo ambiente (logs, pcaps, volumes)
+*.pcap
+*.log
+infra/compose/volumes/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+
+# sistema
+.DS_Store
+.vscode/
+__pycache__/
