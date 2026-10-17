@@ -1,0 +1,46 @@
+#serviços rodando
+services:
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: dvwa
+    networks:
+      - net-victim
+    ports:
+      - "8081:80"   #127.0.0.1:8081
+
+  juice-shop:
+    image: bkimminich/juice-shop
+    container_name: juice-shop
+    networks:
+      - net-victim
+    ports:
+      - "8082:3000"   #127.0.0.1:8082
+
+  metasploitable:
+    image: tleemcjr/metasploitable2
+    container_name: metasploitable
+    networks:
+      - net-victim
+    tty: true
+    stdin_open: true
+
+
+
+  attacker:
+    build:
+      context: .
+      dockerfile: attacker.Dockerfile
+    container_name: attacker
+    networks:
+      - net-attacker
+      - net-victim
+    tty: true
+    stdin_open: true
+
+networks:
+  net-victim:
+    driver: bridge
+  net-attacker:
+    driver: bridge
+  net-monitor:
+    driver: bridge
