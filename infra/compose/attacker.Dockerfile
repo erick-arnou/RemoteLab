@@ -6,8 +6,12 @@ RUN apt-get update && apt-get install -y \
     sqlmap \
     metasploit-framework \
     netcat-traditional \
+    iproute2 \
     iputils-ping \
     && apt-get clean
 
-    # modo standard mantendo o container ocioso
-CMD ["sleep", "infinity"]
+COPY attacker-entrypoint.sh /usr/local/bin/attacker-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/attacker-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/attacker-entrypoint.sh"]
