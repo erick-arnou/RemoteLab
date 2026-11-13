@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     && apt-get clean
 
-COPY gateway-entrypoint.sh /usr/local/bin/gateway-entrypoint.sh
+COPY entrypoints/gateway-entrypoint.sh /usr/local/bin/gateway-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/gateway-entrypoint.sh
 

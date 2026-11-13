@@ -1,0 +1,133 @@
+# Fase 5 - Detecção de tráfego de ataque
+# Objetivo: Scans do atacante são registrados pelo gateway (prefixo ATTACK-TRAFFIC) e contabilizados nas regras
+# Data: 2026-11-05 19:16:29
+
+$ docker exec gateway iptables -Z FORWARD
+
+$ docker exec attacker nmap -sV -p 80 172.20.2.4
+Starting Nmap 7.991 ( https://nmap.org ) at 2026-11-05 22:16 +0000
+Nmap scan report for 172.20.2.4
+Host is up (0.00012s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.25 ((Debian))
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.77 seconds
+
+$ docker exec attacker nmap -sV -p 3000 172.20.2.3
+Starting Nmap 7.991 ( https://nmap.org ) at 2026-11-05 22:16 +0000
+Nmap scan report for 172.20.2.3
+Host is up (0.00011s latency).
+
+PORT     STATE SERVICE VERSION
+3000/tcp open  ppp?
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port3000-TCP:V=7.991%I=7%D=11/5%Time=6AED0050%P=x86_64-pc-linux-gnu%r(G
+SF:etRequest,1C48,"HTTP/1\.1\x20200\x20OK\r\nAccess-Control-Allow-Origin:\
+SF:x20\*\r\nX-Content-Type-Options:\x20nosniff\r\nX-Frame-Options:\x20SAME
+SF:ORIGIN\r\nFeature-Policy:\x20payment\x20'self'\r\nX-Recruiting:\x20/#/j
+SF:obs\r\nAccept-Ranges:\x20bytes\r\nCache-Control:\x20public,\x20max-age=
+SF:0\r\nLast-Modified:\x20Thu,\x2005\x20Nov\x202026\x2022:00:09\x20GMT\r\n
+SF:ETag:\x20W/\"2700-1a1adb9fbbc\"\r\nContent-Type:\x20text/html;\x20chars
+SF:et=UTF-8\r\nContent-Length:\x209984\r\nVary:\x20Accept-Encoding\r\nDate
+SF::\x20Thu,\x2005\x20Nov\x202026\x2022:16:48\x20GMT\r\nConnection:\x20clo
+SF:se\r\n\r\n<!--\n\x20\x20~\x20Copyright\x20\(c\)\x202014-2026\x20Bjoern\
+SF:x20Kimminich\x20&\x20the\x20OWASP\x20Juice\x20Shop\x20contributors\.\n\
+SF:x20\x20~\x20SPDX-License-Identifier:\x20MIT\n\x20\x20-->\n\n<!doctype\x
+SF:20html>\n<html\x20lang=\"en\"\x20data-beasties-container>\n<head>\n\x20
+SF:\x20<meta\x20charset=\"utf-8\">\n\x20\x20<title>OWASP\x20Juice\x20Shop<
+SF:/title>\n\x20\x20<meta\x20name=\"description\"\x20content=\"Probably\x2
+SF:0the\x20most\x20modern\x20and\x20sophisticated\x20insecure\x20web\x20ap
+SF:plication\">\n\x20\x20<meta\x20name=\"viewport\"\x20content=\"width=dev
+SF:ice-width,\x20initial-scale=1\">\n\x20\x20<link\x20rel=\"preconnect\"\x
+SF:20href=\"htt")%r(Help,2F,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nConnect
+SF:ion:\x20close\r\n\r\n")%r(NCP,2F,"HTTP/1\.1\x20400\x20Bad\x20Request\r\
+SF:nConnection:\x20close\r\n\r\n")%r(HTTPOptions,EA,"HTTP/1\.1\x20204\x20N
+SF:o\x20Content\r\nAccess-Control-Allow-Origin:\x20\*\r\nAccess-Control-Al
+SF:low-Methods:\x20GET,HEAD,PUT,PATCH,POST,DELETE\r\nVary:\x20Access-Contr
+SF:ol-Request-Headers\r\nContent-Length:\x200\r\nDate:\x20Thu,\x2005\x20No
+SF:v\x202026\x2022:16:48\x20GMT\r\nConnection:\x20close\r\n\r\n")%r(RTSPRe
+SF:quest,EA,"HTTP/1\.1\x20204\x20No\x20Content\r\nAccess-Control-Allow-Ori
+SF:gin:\x20\*\r\nAccess-Control-Allow-Methods:\x20GET,HEAD,PUT,PATCH,POST,
+SF:DELETE\r\nVary:\x20Access-Control-Request-Headers\r\nContent-Length:\x2
+SF:00\r\nDate:\x20Thu,\x2005\x20Nov\x202026\x2022:16:48\x20GMT\r\nConnecti
+SF:on:\x20close\r\n\r\n")%r(RPCCheck,2F,"HTTP/1\.1\x20400\x20Bad\x20Reques
+SF:t\r\nConnection:\x20close\r\n\r\n");
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.79 seconds
+
+$ docker exec attacker nmap -sT -p 21,22,23,80,445 172.20.2.2
+Starting Nmap 7.991 ( https://nmap.org ) at 2026-11-05 22:16 +0000
+Nmap scan report for 172.20.2.2
+Host is up (0.00014s latency).
+
+PORT    STATE SERVICE
+21/tcp  open  ftp
+22/tcp  open  ssh
+23/tcp  open  telnet
+80/tcp  open  http
+445/tcp open  microsoft-ds
+
+Nmap done: 1 IP address (1 host up) scanned in 0.55 seconds
+
+$ docker exec attacker nmap -sT --top-ports 100 172.20.2.2
+Starting Nmap 7.991 ( https://nmap.org ) at 2026-11-05 22:16 +0000
+Nmap scan report for 172.20.2.2
+Host is up (0.00040s latency).
+Not shown: 84 closed tcp ports (conn-refused)
+PORT     STATE SERVICE
+21/tcp   open  ftp
+22/tcp   open  ssh
+23/tcp   open  telnet
+25/tcp   open  smtp
+80/tcp   open  http
+111/tcp  open  rpcbind
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+513/tcp  open  login
+514/tcp  open  shell
+2121/tcp open  ccproxy-ftp
+3306/tcp open  mysql
+5432/tcp open  postgresql
+5900/tcp open  vnc
+6000/tcp open  X11
+8009/tcp open  ajp13
+
+Nmap done: 1 IP address (1 host up) scanned in 0.57 seconds
+
+$ docker exec gateway iptables -L FORWARD -n -v --line-numbers
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+num   pkts bytes target     prot opt in     out     source               destination         
+1      511 54644 ACCEPT     0    --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+2      161  9276 LOG        0    --  *      *       172.20.1.0/24        172.20.2.0/24        LOG flags 0 level 4 prefix "ATTACK-TRAFFIC: "
+3      161  9276 ACCEPT     0    --  *      *       172.20.1.0/24        172.20.2.0/24       
+
+$ new_logs | head -n 10
+[qui nov  5 19:16:29 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=28 TOS=0x00 PREC=0x00 TTL=37 ID=41597 PROTO=ICMP TYPE=8 CODE=0 ID=19764 SEQ=0 
+[qui nov  5 19:16:29 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=44 TOS=0x00 PREC=0x00 TTL=47 ID=23856 PROTO=TCP SPT=50824 DPT=443 WINDOW=1024 RES=0x00 SYN URGP=0 
+[qui nov  5 19:16:29 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=40 TOS=0x00 PREC=0x00 TTL=38 ID=17084 PROTO=TCP SPT=50824 DPT=80 WINDOW=1024 RES=0x00 ACK URGP=0 
+[qui nov  5 19:16:29 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=40 TOS=0x00 PREC=0x00 TTL=46 ID=30958 PROTO=ICMP TYPE=13 CODE=0 
+[qui nov  5 19:16:30 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=44 TOS=0x00 PREC=0x00 TTL=47 ID=24046 PROTO=TCP SPT=51080 DPT=80 WINDOW=1024 RES=0x00 SYN URGP=0 
+[qui nov  5 19:16:30 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=60 TOS=0x00 PREC=0x00 TTL=63 ID=6747 DF PROTO=TCP SPT=40373 DPT=80 WINDOW=64240 RES=0x00 SYN URGP=0 
+[qui nov  5 19:16:36 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=60 TOS=0x00 PREC=0x00 TTL=63 ID=63746 DF PROTO=TCP SPT=34714 DPT=80 WINDOW=64240 RES=0x00 SYN URGP=0 
+[qui nov  5 19:16:36 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=60 TOS=0x00 PREC=0x00 TTL=63 ID=53118 DF PROTO=TCP SPT=34720 DPT=80 WINDOW=64240 RES=0x00 SYN URGP=0 
+[qui nov  5 19:16:36 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=60 TOS=0x00 PREC=0x00 TTL=63 ID=53884 DF PROTO=TCP SPT=34736 DPT=80 WINDOW=64240 RES=0x00 SYN URGP=0 
+[qui nov  5 19:16:36 2026] ATTACK-TRAFFIC: IN=eth0 OUT=eth2 MAC=a2:b6:8b:ed:e0:d1:be:e7:ae:e5:cf:d8:08:00 SRC=172.20.1.9 DST=172.20.2.4 LEN=60 TOS=0x00 PREC=0x00 TTL=63 ID=8646 DF PROTO=TCP SPT=34748 DPT=80 WINDOW=64240 RES=0x00 SYN URGP=0 
+
+$ new_logs | wc -l
+161
+
+$ new_logs | grep -o 'DPT=[0-9]*' | sort | uniq -c | sort -rn | head -n 10
+     32 DPT=3000
+     15 DPT=80
+      5 DPT=443
+      2 DPT=445
+      2 DPT=23
+      2 DPT=22
+      2 DPT=21
+      1 DPT=9999
+      1 DPT=995
+      1 DPT=993
+

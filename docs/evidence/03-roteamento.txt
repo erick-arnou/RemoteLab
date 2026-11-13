@@ -1,0 +1,13 @@
+# Fase 3 - Roteamento do atacante
+# Objetivo: O tráfego do atacante para a rede vítima passa obrigatoriamente pelo gateway
+# Data: 2026-11-05 19:16:23
+
+$ docker exec attacker ip route
+default via 172.20.1.1 dev eth0 
+172.20.1.0/24 dev eth0 proto kernel scope link src 172.20.1.9 
+172.20.2.0/24 via 172.20.1.254 dev eth0 
+
+$ docker exec attacker ip route get 172.20.2.4
+172.20.2.4 via 172.20.1.254 dev eth0 src 172.20.1.9 uid 0 
+    cache 
+

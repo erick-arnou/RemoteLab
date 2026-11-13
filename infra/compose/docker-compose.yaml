@@ -1,50 +1,54 @@
 #serviços rodando
 services:
   dvwa:
-    image: vulnerables/web-dvwa
+    image: ${DVWA_IMAGE}
     container_name: dvwa
     networks:
       - net-victim
     ports:
-      - "8081:80"   #127.0.0.1:8081
+      - "${DVWA_PORT}:80"   #127.0.0.1:8081
+    profiles: ["core", "full"]
 
   juice-shop:
-    image: bkimminich/juice-shop
+    image: ${JUICESHOP_IMAGE}
     container_name: juice-shop
     networks:
       - net-victim
     ports:
-      - "8082:3000"   #127.0.0.1:8082
+      - "${JUICESHOP_PORT}:3000"   #127.0.0.1:8082
+    profiles: ["full"]
 
   metasploitable:
-    image: tleemcjr/metasploitable2
+    image: ${METASPLOITABLE_IMAGE}
     container_name: metasploitable
     networks:
       - net-victim
     tty: true
     stdin_open: true
+    profiles: ["full"]
 
 
 
   attacker:
     build:
       context: .
-      dockerfile: attacker.Dockerfile
+      dockerfile: dockerfiles/attacker.Dockerfile
     container_name: attacker
     cap_add:
       - NET_ADMIN                           #para a rota no arquivo attacker_entrypoint.sh
     networks:
       net-attacker:
-        ipv4_address: 172.20.1.9            #ip fixo dentro da rede attacker
+        ipv4_address: ${ATTACKER_IP}            #ip fixo dentro da rede attacker
     tty: true
     stdin_open: true
+    profiles: ["core", "full"]
 
 
 
   gateway:
     build:
       context: .
-      dockerfile: gateway.Dockerfile
+      dockerfile: dockerfiles/gateway.Dockerfile
     container_name: gateway
     cap_add:
       - NET_ADMIN
@@ -53,20 +57,21 @@ services:
       - net.ipv4.ip_forward=1
     networks:
       net-attacker:
-        ipv4_address: 172.20.1.254
+        ipv4_address: ${GATEWAY_ATTACKER_IP}
       net-victim:
-        ipv4_address: 172.20.2.254
+        ipv4_address: ${GATEWAY_VICTIM_IP}
       net-monitor:
-        ipv4_address: 172.20.3.254
+        ipv4_address: ${GATEWAY_MONITOR_IP}
     volumes:
-      - ./gateway-entrypoint.sh:/usr/local/bin/gateway-entrypoint.sh:ro
+      - ./entrypoints/gateway-entrypoint.sh:/usr/local/bin/gateway-entrypoint.sh:ro
     tty: true
     stdin_open: true
+    profiles: ["core", "full"]
 
 
 
   suricata:
-    image: jasonish/suricata:latest
+    image: ${SURICATA_IMAGE}
     container_name: suricata
     network_mode: "service:gateway"
     cap_add:
@@ -77,9 +82,10 @@ services:
       - gateway
     entrypoint: ["/bin/sh", "/suricata-entrypoint.sh"]
     volumes:
-      - ./suricata-entrypoint.sh:/suricata-entrypoint.sh:ro
+      - ./entrypoints/suricata-entrypoint.sh:/suricata-entrypoint.sh:ro
       - suricata-logs:/var/log/suricata
       - suricata-rules:/var/lib/suricata
+    profiles: ["core", "full"]
 
 
 
@@ -89,19 +95,19 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.1.0/24
+        - subnet: ${ATTACKER_SUBNET} 
 
   net-victim:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.2.0/24
+        - subnet: ${VICTIM_SUBNET}
 
   net-monitor:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.3.0/24
+        - subnet: ${MONITOR_SUBNET}
 
 
 volumes:

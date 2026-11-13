@@ -1,0 +1,42 @@
+# Fase 4 - Conectividade atacante -> vítimas
+# Objetivo: Atacante alcança cada vítima atravessando o gateway
+# Data: 2026-11-05 19:16:23
+
+$ docker exec attacker ping -c 3 172.20.2.4
+PING 172.20.2.4 (172.20.2.4) 56(84) bytes of data.
+64 bytes from 172.20.2.4: icmp_seq=1 ttl=63 time=0.123 ms
+64 bytes from 172.20.2.4: icmp_seq=2 ttl=63 time=0.066 ms
+64 bytes from 172.20.2.4: icmp_seq=3 ttl=63 time=0.108 ms
+
+--- 172.20.2.4 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2051ms
+rtt min/avg/max/mdev = 0.066/0.099/0.123/0.024 ms
+
+$ docker exec attacker ping -c 3 172.20.2.3
+PING 172.20.2.3 (172.20.2.3) 56(84) bytes of data.
+64 bytes from 172.20.2.3: icmp_seq=1 ttl=63 time=0.098 ms
+64 bytes from 172.20.2.3: icmp_seq=2 ttl=63 time=0.082 ms
+64 bytes from 172.20.2.3: icmp_seq=3 ttl=63 time=0.088 ms
+
+--- 172.20.2.3 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2061ms
+rtt min/avg/max/mdev = 0.082/0.089/0.098/0.006 ms
+
+$ docker exec attacker ping -c 3 172.20.2.2
+PING 172.20.2.2 (172.20.2.2) 56(84) bytes of data.
+64 bytes from 172.20.2.2: icmp_seq=1 ttl=63 time=0.126 ms
+64 bytes from 172.20.2.2: icmp_seq=2 ttl=63 time=0.097 ms
+64 bytes from 172.20.2.2: icmp_seq=3 ttl=63 time=0.087 ms
+
+--- 172.20.2.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2061ms
+rtt min/avg/max/mdev = 0.087/0.103/0.126/0.016 ms
+
+$ docker exec attacker nc -zv -w 2 172.20.2.4 80
+172.20.2.4: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.20.2.4] 80 (http) open
+
+$ docker exec attacker nc -zv -w 2 172.20.2.3 3000
+172.20.2.3: inverse host lookup failed: Unknown host
+(UNKNOWN) [172.20.2.3] 3000 (?) open
+

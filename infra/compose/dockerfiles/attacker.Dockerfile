@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     iputils-ping \
     && apt-get clean
 
-COPY attacker-entrypoint.sh /usr/local/bin/attacker-entrypoint.sh
+COPY entrypoints/attacker-entrypoint.sh /usr/local/bin/attacker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/attacker-entrypoint.sh
 
