@@ -1,6 +1,7 @@
-FROM kalilinux/kali-rolling
+FROM kalilinux/kali-rolling@sha256:6ec743d9fc5cd397451eeddeff3869bcfab5de9bd5dec5b1f34cbfbd80313073
 
-RUN apt-get update && apt-get install -y \
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nmap \
     hydra \
     sqlmap \
@@ -8,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     netcat-traditional \
     iproute2 \
     iputils-ping \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
 COPY entrypoints/attacker-entrypoint.sh /usr/local/bin/attacker-entrypoint.sh
 

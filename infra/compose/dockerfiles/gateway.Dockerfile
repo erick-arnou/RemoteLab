@@ -1,9 +1,10 @@
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y \
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
     iptables \
     iproute2 \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
 COPY entrypoints/gateway-entrypoint.sh /usr/local/bin/gateway-entrypoint.sh
 
