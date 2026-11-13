@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+
+##lints dos containers
+jobs:
+  lint:
+    
+    name: Lint Dockerfiles e Compose
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Lint gateway.Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infra/compose/dockerfiles/gateway.Dockerfile
+
+      - name: Lint attacker.Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infra/compose/dockerfiles/attacker.Dockerfile
+
+      - name: Preparar .env para validação
+        run: cp infra/compose/.env.example infra/compose/.env
+
+      - name: Validar docker-compose.yaml
+        run: docker compose -f infra/compose/docker-compose.yaml config --quiet
+
+
+
+  build:
+
+    name: Build das imagens customizadas
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar .env
+        run: cp infra/compose/.env.example infra/compose/.env
+
+      - name: Build gateway
+        run: docker compose -f infra/compose/docker-compose.yaml build gateway
+
+      - name: Build attacker
+        run: docker compose -f infra/compose/docker-compose.yaml build attacker
